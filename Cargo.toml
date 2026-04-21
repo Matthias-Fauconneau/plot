@@ -1,0 +1,16 @@
+package = { name='view', version='0.0.0', edition='2024', description = 'View PNG images'}
+build-dependencies={wgsl={git='https://github.com/Matthias-Fauconneau/ui'}}
+
+[dependencies]
+num = { git='https://github.com/Matthias-Fauconneau/num' }
+vector = { git='https://github.com/Matthias-Fauconneau/vector' }
+image = { git='https://github.com/Matthias-Fauconneau/image' }
+rand='*'
+rand_distr='*'
+
+bytemuck='*'
+ui = { git='https://github.com/Matthias-Fauconneau/ui' }
+vulkano = { git='https://github.com/vulkano-rs/vulkano', default-features=false, features=['macros'] } # same version as ui (which needs drm modifier from git version)
+vulkano-spirv = { git='https://github.com/Matthias-Fauconneau/vulkano-spirv' }
+[patch.'https://github.com/vulkano-rs/vulkano']
+vulkano = { git='https://github.com/Matthias-Fauconneau/vulkano'  } # drm modifier
