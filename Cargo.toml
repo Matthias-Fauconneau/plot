@@ -1,16 +1,14 @@
-package = { name='view', version='0.0.0', edition='2024', description = 'View PNG images'}
-build-dependencies={wgsl={git='https://github.com/Matthias-Fauconneau/ui'}}
+package = { name='training', version='0.0.0', edition='2024', description = 'Training Products of Experts by Minimizing Contrastive Divergence'}
 
 [dependencies]
 num = { git='https://github.com/Matthias-Fauconneau/num' }
 vector = { git='https://github.com/Matthias-Fauconneau/vector' }
-image = { git='https://github.com/Matthias-Fauconneau/image' }
-rand='*'
-rand_distr='*'
+rand='0.9'
+nalgebra='*'
+statrs = { git = 'https://github.com/statrs-dev/statrs', features = ['rand','nalgebra'] }
 
-bytemuck='*'
-ui = { git='https://github.com/Matthias-Fauconneau/ui' }
-vulkano = { git='https://github.com/vulkano-rs/vulkano', default-features=false, features=['macros'] } # same version as ui (which needs drm modifier from git version)
-vulkano-spirv = { git='https://github.com/Matthias-Fauconneau/vulkano-spirv' }
-[patch.'https://github.com/vulkano-rs/vulkano']
-vulkano = { git='https://github.com/Matthias-Fauconneau/vulkano'  } # drm modifier
+image = { git='https://github.com/Matthias-Fauconneau/image', optional=true }
+line = { git='https://github.com/Matthias-Fauconneau/line', optional=true }
+
+[features]
+plot=['dep:image','dep:line']

@@ -1,0 +1,4 @@
+package = { name='plot', version='0.0.0', edition='2024', description = 'Plot training'}
+[dependencies]
+training = {path='..', features=['plot']}
+image = { git='https://github.com/Matthias-Fauconneau/image', features = ['io'] }
