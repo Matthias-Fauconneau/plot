@@ -2,7 +2,6 @@ package = { name='training', version='0.0.0', edition='2024', description = 'Tra
 
 [dependencies]
 num = { git='https://github.com/Matthias-Fauconneau/num' }
-vector = { git='https://github.com/Matthias-Fauconneau/vector' }
 rand='0.9'
 nalgebra='*'
 statrs = { git = 'https://github.com/statrs-dev/statrs', features = ['rand','nalgebra'] }

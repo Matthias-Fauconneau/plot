@@ -1,5 +1,5 @@
 use crate::{Training, Expert};
-use nalgebra::{Vector2, linalg::SymmetricEigen};
+use nalgebra::{Vector2, matrix, linalg::SymmetricEigen};
 use {image::{size, xy, Image, rgba8}, line::line_no_blend as line};
 
 impl Training {
@@ -16,8 +16,8 @@ impl Training {
 			for x in -4..=4 { if let Some(p) = (p+xy{x,y: 0}).try_unsigned() { if let Some(p) = image.get_mut(p) { *p = rgba8{r: 0xFF, g: 0xFF, b: 0xFF, a: 0xFF}; } } }
 		}
 
-		for Expert{mean, covariance, ..} in &*model {
-			let SymmetricEigen{eigenvectors, eigenvalues} = covariance.symmetric_eigen();
+		for Expert{mean, precision, ..} in &*model {
+			let SymmetricEigen{eigenvectors, eigenvalues} = matrix![1./f64::sqrt(precision[0]), 0.; 0., 1./f64::sqrt(precision[1])].symmetric_eigen();
 			let mut line = |a:Vector2<f64>, b:Vector2<f64>| line(image.as_mut(), map(a), map(b), rgba8{r: 0xFF, g: 0xFF, b: 0xFF, a: 0xFF});
 			line(mean-eigenvalues[0]*eigenvectors.column(0), mean+eigenvalues[0]*eigenvectors.column(0));
 			line(mean-eigenvalues[1]*eigenvectors.column(1), mean+eigenvalues[1]*eigenvectors.column(1));
