@@ -34,9 +34,7 @@ impl Training {
 
 		//for &p in &*data { plot(1, rgb{r: 0x80, g: 0x80, b: 0x80}, p); }
 		//for (i, &p) in self.debug.iter().enumerate() { plot(i as i32, rgb{r: 0x80+i as u8, g: 0x80+i as u8, b: 0xFF}, p); }
-		for &[a,b] in self.debug.array_windows() {
-			line(image.as_mut(), rgb{r: 0x80, g: 0x80, b: 0x80}, a,b);
-		}
+		for &[a,b] in self.debug.array_windows() { line(image.as_mut(), rgb{r: 0x80, g: 0x80, b: 0x80}, a,b); }
 		for &p in &*self.debug { plot(image.as_mut(), 1, rgb{r: 0, g: 0, b: 0}, p); }
 
 		image
