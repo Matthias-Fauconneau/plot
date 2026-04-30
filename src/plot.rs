@@ -15,7 +15,7 @@ impl Training {
 			//for x in -radius..=radius { if let Some(p) = (p+xy{x,y: 0}).try_unsigned() { if let Some(p) = image.get_mut(p) { *p = rgba8{r, g, b, a: 0xFF}; } } }
 			for y in -radius..=radius { for x in -radius..=radius { if let Some(p) = (p+xy{x,y}).try_unsigned() { if let Some(p) = target.get_mut(p) { *p = rgba8{r, g, b, a: 0xFF}; } } } }
 		};
-		let line = |mut target: Image<&mut [rgba8]>, rgb{r, g, b}, p0: Vector2<f64>, p1: Vector2<f64>| line(target, map(p0), map(p1), rgba8{r, g, b, a: 0xFF});
+		let line = |target: Image<&mut [rgba8]>, rgb{r, g, b}, p0: Vector2<f64>, p1: Vector2<f64>| { let [p0, p1] = [map(p0), map(p1)]; if p0 != p1 && p0.x.is_finite() && p0.y.is_finite() && p1.x.is_finite() && p1.y.is_finite() { line(target, p0, p1, rgba8{r, g, b, a: 0xFF}) } };
 
 		for Expert{mean, precision, ..} in &*model {
 			let SymmetricEigen{eigenvectors, eigenvalues} = matrix![1./f64::sqrt(precision[0]), 0.; 0., 1./f64::sqrt(precision[1])].symmetric_eigen();
@@ -32,10 +32,10 @@ impl Training {
 			line(image.as_mut(), rgb{r: 0, g: 0, b: 0xFF}, rect[3], rect[0]);
 		}
 
-		//for &p in &*data { plot(1, rgb{r: 0x80, g: 0x80, b: 0x80}, p); }
-		//for (i, &p) in self.debug.iter().enumerate() { plot(i as i32, rgb{r: 0x80+i as u8, g: 0x80+i as u8, b: 0xFF}, p); }
-		for &[a,b] in self.debug.array_windows() { line(image.as_mut(), rgb{r: 0x80, g: 0x80, b: 0x80}, a,b); }
-		for &p in &*self.debug { plot(image.as_mut(), 1, rgb{r: 0, g: 0, b: 0}, p); }
+		//for &p in &*data { plot(image.as_mut(), 1, rgb{r: 0, g: 0, b: 0}, p); }
+		//for (i, &p) in self.debug.iter().enumerate() { plot(image.as_mut(), i as i32, rgb{r: 0x80+i as u8, g: 0x80+i as u8, b: 0xFF}, p); }
+		//for &[a,b] in self.debug.array_windows() { line(image.as_mut(), rgb{r: 0x80, g: 0x80, b: 0x80}, a,b); }
+		for &p in &*self.debug { plot(image.as_mut(), 2, rgb{r: 0, g: 0, b: 0}, p); }
 
 		image
 	}

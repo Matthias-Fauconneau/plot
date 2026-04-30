@@ -28,7 +28,14 @@ fn paint(&mut self, context: &Context, commands: &mut Commands, target: Arc<Imag
 	commands.end_rendering()?;
 	Ok(())
 }
-fn event(&mut self, _: &Context, _: &mut Commands, _: size, _: &mut ui::EventContext, event: &ui::Event) -> Result<bool> { Ok(matches!(event, ui::Event::Idle)) }
+fn event(&mut self, _: &Context, _: &mut Commands, _: size, _: &mut ui::EventContext, event: &ui::Event) -> Result<bool> {
+	match event {
+		ui::Event::Key(' ') => image::save_rgb("plot.png", &self.training.plot(image::xy{x: 3840, y: 2160}).map(|image::rgba{r,g,b,a:_}| image::rgb{r,g,b}))?,
+		ui::Event::Idle => return Ok(true),
+		_ => {},
+	};
+	Ok(false)
+}
 }
 
 fn main() -> Result { run("training", Box::new(|context, commands| Ok(Box::new(App::new(context, commands)?)))) }
