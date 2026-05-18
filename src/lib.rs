@@ -63,21 +63,20 @@ impl Training {
 		let mut sum_grad_µ = vec![vector![0.,0.]; model.len()];
 		for &d in &*data {
 			for (i, &Expert{ln_prior_weight: c, precision : p, mean: µ}) in model.iter().enumerate() {
-				// h ~ p(h|d): For each expert, stochastically select the gaussian or the uniform according to the posterior
 				let q = f64::exp( -p[0]*sq(d[0]-µ[0]) -p[1]*sq(d[1]-µ[1]) + c );
-				if rng.random_bool(1./(1.+q)) { if i>0 { continue; } } // uniform // Always keep first
-				sum_grad_c[i] += 1.;
-				sum_grad_p[i] += -vector![sq(d[0]-µ[0]), sq(d[1]-µ[1])];
-				sum_grad_µ[i] += d-µ;
+				let h = if i==0 { 1.-0. } else { 1.-1./(1.+q) }; 
+				sum_grad_c[i] += h;
+				sum_grad_p[i] += -h * vector![sq(d[0]-µ[0]), sq(d[1]-µ[1])];
+				sum_grad_µ[i] += h * 2. * p.component_mul( &(d-µ) );
 			}
 
-			let mut d_hat = *data.choose(rng).unwrap();
-			for _ in 0..100 {
+			let mut d_hat = d;
+			for _ in 0..1 {
 				let mut sum_p = vector![0.,0.];
 				let mut sum_pµ = vector![0.,0.];
 				for (i, &Expert{mean: µ, precision : p, ln_prior_weight: c}) in model.iter().enumerate() {
-					// h ~ p(h|d)
-					let q = f64::exp( -p[0]*sq(d[0]-µ[0]) -p[1]*sq(d[1]-µ[1]) + c );
+					// h ~ p(h|d): For each expert, stochastically select the gaussian or the uniform according to the posterior
+					let q = f64::exp( -p[0]*sq(d_hat[0]-µ[0]) -p[1]*sq(d_hat[1]-µ[1]) + c );
 					if rng.random_bool(1./(1.+q)) { if i>0 { continue; } } // uniform // Always keep first
 					sum_p += vector![p[0], p[1]];
 					sum_pµ += vector![p[0]*µ[0], p[1]*µ[1]];
@@ -91,17 +90,17 @@ impl Training {
 			for (i, &Expert{ln_prior_weight: c, precision : p, mean: µ}) in model.iter().enumerate() {
 				// h ~ p(h|d): For each expert, stochastically select the gaussian or the uniform according to the posterior
 				let q = f64::exp( -p[0]*sq(d_hat[0]-µ[0]) -p[1]*sq(d_hat[1]-µ[1]) + c );
-				if rng.random_bool(1./(1.+q)) { if i>0 { continue; } } // uniform // Always keep first
-				sum_grad_c[i] -= 1.;
-				sum_grad_p[i] -= -vector![sq(d_hat[0]-µ[0]), sq(d_hat[1]-µ[1])];
-				sum_grad_µ[i] -= d_hat-µ;
+				let h = if i==0 { 1.-0. } else { 1.-1./(1.+q) };
+                                sum_grad_c[i] -= h;
+                                sum_grad_p[i] -= -h * vector![sq(d_hat[0]-µ[0]), sq(d_hat[1]-µ[1])];
+                                sum_grad_µ[i] -= h * 2. * p.component_mul( &(d_hat-µ) );
 			}
 		}
 
-		let learning_rate : f64 = 0.1/data.len() as f64;
+		let learning_rate : f64 = 0.01/data.len() as f64;
 		for (i, Expert{ln_prior_weight: c, precision : p, mean: µ}) in model.iter_mut().enumerate() {
 			*c += learning_rate * sum_grad_c[i];
-			*p += learning_rate * sum_grad_p[i] / 2.;
+			*p += learning_rate * sum_grad_p[i];// / 2.;
 			p[0] = f64::max(p[0], 0.);
 			p[1] = f64::max(p[1], 0.);
 			*µ += learning_rate * sum_grad_µ[i];
